@@ -18,7 +18,7 @@ feature 'Chimpy Admin', :js do
     check 'user_subscribed'
     click_button 'Create'
 
-    expect(current_path).to eq spree.admin_users_path
+    expect(current_path).to eq spree.edit_admin_user_path(Spree::User.last)
     expect(page).to have_text 'API Access'
     expect(page).to have_text 'No key'
 
@@ -40,7 +40,7 @@ feature 'Chimpy Admin', :js do
 
     click_button 'Create'
 
-    current_path.should eq spree.admin_users_path
+    current_path.should eq spree.edit_admin_user_path(Spree::User.last)
     expect(page).to have_text 'API Access'
     expect(page).to have_text 'No key'
 
@@ -56,7 +56,7 @@ feature 'Chimpy Admin', :js do
   private
 
   def fill_in_subscription(user)
-    expect(page).to have_text 'SUBSCRIBED TO NEWSLETTER'
+    expect(page).to have_text Spree.t(:subscribed, scope: :chimpy)
 
     fill_in 'user_email', with: "new-#{user.email}"
     fill_in 'user_password', with: 'test123456'

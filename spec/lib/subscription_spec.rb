@@ -3,17 +3,17 @@ require 'spec_helper'
 describe Spree::Chimpy::Subscription do
 
   context "mail chimp enabled" do
-    let(:interface)    { double(:interface) }
+    let(:interface) {double(:interface)}
 
     before do
-      Spree::Chimpy::Config.list_name  = 'Members'
+      Spree::Chimpy::Config.list_name = 'Members'
       Spree::Chimpy::Config.merge_vars = {'EMAIL' => :email}
-      Spree::Chimpy.stub(list: interface)
+      allow(Spree::Chimpy).to receive(:list) {interface}
     end
 
     context "subscribing users" do
-      let(:user)         { build(:user, subscribed: true) }
-      let(:subscription) { described_class.new(user) }
+      let(:user) {build(:user, subscribed: true)}
+      let(:subscription) {described_class.new(user)}
 
       before do
         Spree::Chimpy::Config.merge_vars = {'EMAIL' => :email, 'SIZE' => :size, 'HEIGHT' => :height}
@@ -34,12 +34,12 @@ describe Spree::Chimpy::Subscription do
     end
 
     context "subscribing subscribers" do
-      let(:subscriber)   { Spree::Chimpy::Subscriber.new(email: "test@example.com", subscribed: true) }
-      let(:subscription) { described_class.new(subscriber) }
+      let(:subscriber) {Spree::Chimpy::Subscriber.new(email: "test@example.com", subscribed: true)}
+      let(:subscription) {described_class.new(subscriber)}
 
       it "subscribes subscribers" do
-        interface.should_receive(:subscribe).with(subscriber.email, {}, customer: false)
-        interface.should_not_receive(:segment)
+        expect(interface).to receive(:subscribe).with(subscriber.email, {}, customer: false)
+        expect(interface).not_to receive(:segment)
         subscriber.save
       end
     end
@@ -70,56 +70,56 @@ describe Spree::Chimpy::Subscription do
     # end
 
     context "unsubscribing" do
-      let(:subscription) { described_class.new(user) }
+      let(:subscription) {described_class.new(user)}
 
-      before { interface.stub(:subscribe) }
+      before {allow(interface).to receive(:subscribe)}
 
       context "subscribed user" do
-        let(:user) { create(:user, subscribed: true) }
+        let(:user) {create(:user, subscribed: true)}
         it "unsubscribes" do
-          interface.should_receive(:unsubscribe).with(user.email)
+          expect(interface).to receive(:unsubscribe).with(user.email)
           user.subscribed = false
           subscription.unsubscribe
         end
       end
 
       context "non-subscribed user" do
-        let(:user) { build(:user, subscribed: false) }
+        let(:user) {build(:user, subscribed: false)}
         it "does nothing" do
-          interface.should_not_receive(:unsubscribe)
+          expect(interface).not_to receive(:unsubscribe)
           subscription.unsubscribe
         end
       end
     end
 
     context "when an existing user is not already subscribed" do
-      let(:user) { create(:user, subscribed: false) }
-      let(:subscription) { described_class.new(user) }
+      let(:user) {create(:user, subscribed: false)}
+      let(:subscription) {described_class.new(user)}
 
       context "#resubscribe" do
         it "subscribes the user" do
-          interface.should_receive(:subscribe).with(user.email, {}, {customer: true})
-          user.subscribed = true
+          expect(interface).to receive(:subscribe).with(user.email, {}, {customer: true})
+          user.subscribed = false
           subscription.resubscribe
         end
       end
     end
 
     context "when an existing user is already subscribed" do
-      let(:user) { create(:user, subscribed: true) }
-      let(:subscription) { described_class.new(user) }
+      let(:user) {create(:user, subscribed: true)}
+      let(:subscription) {described_class.new(user)}
 
-      before { interface.stub(:subscribe) }
+      before {allow(interface).to receive(:subscribe)}
 
       context "#resubscribe" do
         it "unsubscribes the user" do
-          interface.should_receive(:unsubscribe).with(user.email)
-          user.subscribed = false
+          expect(interface).to receive(:unsubscribe).with(user.email)
+          user.subscribed = true
           subscription.resubscribe
         end
 
         context "merge vars changed" do
-          let(:user) { create(:user, subscribed: true, size: 10, height: 20) }
+          let(:user) {create(:user, subscribed: true, size: 10, height: 20)}
 
           before do
             Spree::Chimpy::Config.merge_vars = {'EMAIL' => :email, 'SIZE' => :size, 'HEIGHT' => :height}
@@ -132,7 +132,7 @@ describe Spree::Chimpy::Subscription do
           it "subscribes the user once again" do
             user.size += 5
             user.height += 10
-            interface.should_receive(:subscribe).with(user.email, {"SIZE"=> user.size.to_s, "HEIGHT"=> user.height.to_s}, {:customer=>true})
+            expect(interface).to receive(:subscribe).with(user.email, {"SIZE" => user.size.to_s, "HEIGHT" => user.height.to_s}, {:customer => true})
             subscription.resubscribe
           end
         end
@@ -141,10 +141,10 @@ describe Spree::Chimpy::Subscription do
 
     context "when updating a user and not changing subscription details" do
       it "does not update mailchimp" do
-        interface.stub(:subscribe)
+        allow(interface).to receive(:subscribe)
         user = create(:user, subscribed: true)
 
-        interface.should_not_receive(:subscribe)
+        expect(interface).not_to receive(:subscribe)
         user.spree_api_key = 'something'
         user.save!
       end
@@ -160,9 +160,9 @@ describe Spree::Chimpy::Subscription do
       @subscription = described_class.new(user)
     end
 
-    specify { @subscription.subscribe }
-    specify { @subscription.unsubscribe }
-    specify { @subscription.resubscribe {} }
+    specify {@subscription.subscribe}
+    specify {@subscription.unsubscribe}
+    specify {@subscription.resubscribe {}}
   end
 
 end
