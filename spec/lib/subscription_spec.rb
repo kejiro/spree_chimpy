@@ -1,14 +1,17 @@
 require 'spec_helper'
 
 describe Spree::Chimpy::Subscription do
-
   context "mail chimp enabled" do
-    let(:interface) {double(:interface)}
+    let(:interface) {double("Spree::Chimpy::Interface::List")}
 
     before do
+      Spree::Chimpy::Config.key = "secret_api_key"
       Spree::Chimpy::Config.list_name = 'Members'
       Spree::Chimpy::Config.merge_vars = {'EMAIL' => :email}
-      allow(Spree::Chimpy).to receive(:list) {interface}
+      allow(Spree::Chimpy).to receive(:list) {
+        interface
+      }
+
     end
 
     context "subscribing users" do
@@ -28,19 +31,17 @@ describe Spree::Chimpy::Subscription do
       end
 
       it "subscribes users" do
-        interface.should_receive(:subscribe).with(user.email, {'SIZE' => '10', 'HEIGHT' => '20'}, customer: true)
+        expect(interface).to receive(:subscribe).with(user.email, {'SIZE' => '10', 'HEIGHT' => '20'}, customer: true)
         user.save
       end
     end
 
     context "subscribing subscribers" do
       let(:subscriber) {Spree::Chimpy::Subscriber.new(email: "test@example.com", subscribed: true)}
-      let(:subscription) {described_class.new(subscriber)}
-
       it "subscribes subscribers" do
         expect(interface).to receive(:subscribe).with(subscriber.email, {}, customer: false)
         expect(interface).not_to receive(:segment)
-        subscriber.save
+        subscriber.save!
       end
     end
 
@@ -99,7 +100,7 @@ describe Spree::Chimpy::Subscription do
       context "#resubscribe" do
         it "subscribes the user" do
           expect(interface).to receive(:subscribe).with(user.email, {}, {customer: true})
-          user.subscribed = false
+          user.subscribed = true
           subscription.resubscribe
         end
       end
@@ -114,7 +115,7 @@ describe Spree::Chimpy::Subscription do
       context "#resubscribe" do
         it "unsubscribes the user" do
           expect(interface).to receive(:unsubscribe).with(user.email)
-          user.subscribed = true
+          user.subscribed = false
           subscription.resubscribe
         end
 
@@ -154,7 +155,7 @@ describe Spree::Chimpy::Subscription do
 
   context "mail chimp disabled" do
     before do
-      Spree::Chimpy::Config.stub(key: nil)
+      allow(Spree::Chimpy::Config).to receive(:key)
 
       user = build(:user, subscribed: true)
       @subscription = described_class.new(user)

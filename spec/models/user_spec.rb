@@ -5,8 +5,8 @@ describe Spree::User do
     let(:subscription) { double(:subscription, needs_update?: true) }
 
     before do
-      subscription.should_receive(:subscribe)
-      Spree::Chimpy::Subscription.should_receive(:new).at_least(1).and_return(subscription)
+      expect(subscription).to receive(:subscribe)
+      expect(Spree::Chimpy::Subscription).to receive(:new).at_least(1).and_return(subscription)
       @user = create(:user_with_subscribe_option)
     end
 
@@ -16,7 +16,7 @@ describe Spree::User do
     # end
 
     it "submits after destroy" do
-      subscription.should_receive(:unsubscribe)
+      expect(subscription).to receive(:unsubscribe)
       @user.destroy
     end
   end

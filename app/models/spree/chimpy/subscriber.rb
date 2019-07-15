@@ -6,9 +6,9 @@ class Spree::Chimpy::Subscriber < ActiveRecord::Base
   validates :email, presence: true
   validates_format_of :email, with: EMAIL_REGEX, allow_blank: false, if: :email_changed?
 
-  after_create  :subscribe
+  before_create  :subscribe
   around_update :resubscribe
-  after_destroy :unsubscribe
+  before_destroy :unsubscribe
 
   delegate :subscribe, :resubscribe, :unsubscribe, to: :subscription
 

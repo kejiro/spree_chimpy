@@ -25,7 +25,7 @@ describe 'Subscribers' do
     it 'returns 200 with json data' do
       post '/subscribers', params: { format: :json, chimpy_subscriber: { email: 'foo2@bar.com', subscribed: true } }
 
-      expect(response).to be_success
+      expect(response).to be_successful
       json_response = JSON.parse(response.body)
       expect(json_response['email']).to eq('foo2@bar.com')
     end

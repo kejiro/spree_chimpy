@@ -21,7 +21,7 @@ describe Spree::Chimpy::Interface::Products do
     it "ensures each product in the order" do
       order.line_items.each do |line_item|
         interface = double('products')
-        described_class.stub(:new).with(line_item.variant) { interface }
+        allow(described_class).to receive(:new).with(line_item.variant) { interface }
         expect(interface).to receive(:ensure_product)
       end
       described_class.ensure_products(order)

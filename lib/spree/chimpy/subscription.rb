@@ -12,6 +12,7 @@ module Spree::Chimpy
     end
 
     def unsubscribe
+      puts "unsubscribing: #{unsubscribing?}"
       return unless configured?
       defer(:unsubscribe) if unsubscribing?
     end
