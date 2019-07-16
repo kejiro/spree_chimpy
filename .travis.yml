@@ -5,6 +5,7 @@ script:
   - bundle exec rake test_app
   - bundle exec rake spec
 
+
 language: ruby
 cache: bundler
 addons:
