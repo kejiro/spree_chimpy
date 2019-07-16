@@ -6,20 +6,20 @@ RSpec.configure do |config|
     DatabaseCleaner.clean_with(:truncation)
   end
 
-  config.before(:each) do |example|
-    ApplicationRecord.connection.increment_open_transactions if ApplicationRecord.connection.open_transactions < 0
-    if example.metadata[:js]
-      DatabaseCleaner.strategy = :truncation
-    else
-      DatabaseCleaner.start
-    end
+  config.before(:each) do
+    DatabaseCleaner.strategy = :transaction
   end
 
-  config.after(:each) do |example|
+  config.before(:each, type: :feature) do
+    DatabaseCleaner.strategy = :truncation
+  end
+
+  config.before(:each) do
+    DatabaseCleaner.start
+  end
+
+  config.append_after(:each) do
     DatabaseCleaner.clean
-
-    if example.metadata[:js]
-      DatabaseCleaner.strategy = :transaction
-    end
   end
+
 end

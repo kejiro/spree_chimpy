@@ -27,20 +27,20 @@ describe Spree::Chimpy::Interface::List do
 
   before do
     Spree::Chimpy::Config.key = key
-    Gibbon::Request.stub(:new).with({ api_key: key, timeout: 60 }).and_return(api)
+    allow(Gibbon::Request).to receive(:new).with({ api_key: key, timeout: 60 }).and_return(api)
 
-    api.stub(:lists).and_return(lists_api)
-    lists_api.stub(:retrieve).and_return(lists_response)
+    allow(api).to receive(:lists).and_return(lists_api)
+    allow(lists_api).to receive(:retrieve).and_return(lists_response)
 
-    api.stub(:lists).with(list_id).and_return(list_api)
+    allow(api).to receive(:lists).with(list_id).and_return(list_api)
 
-    list_api.stub(:members).and_return(members_api)
-    list_api.stub(:members).with(Digest::MD5.hexdigest(email)).and_return(member_api)
+    allow(list_api).to receive(:members).and_return(members_api)
+    allow(list_api).to receive(:members).with(Digest::MD5.hexdigest(email)).and_return(member_api)
 
-    list_api.stub(:segments).and_return(segments_api)
-    list_api.stub(:segments).with(segment_id).and_return(segment_api)
+    allow(list_api).to receive(:segments).and_return(segments_api)
+    allow(list_api).to receive(:segments).with(segment_id).and_return(segment_api)
 
-    list_api.stub(:merge_fields).and_return(merges_api)
+    allow(list_api).to receive(:merge_fields).and_return(merges_api)
   end
 
   context "#subscribe" do
