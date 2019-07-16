@@ -56,7 +56,7 @@ feature 'Chimpy Admin', :js do
   private
 
   def fill_in_subscription(user)
-    expect(page).to have_text Spree.t(:subscribed, scope: :chimpy)
+    expect(page).to have_selector 'input#user_subscribed'
 
     fill_in 'user_email', with: "new-#{user.email}"
     fill_in 'user_password', with: 'test123456'
