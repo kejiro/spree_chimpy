@@ -28,6 +28,7 @@ module Spree::Chimpy
           api_member_call(email)
             .upsert(body: {
               email_address: email,
+              status_if_new: @double_opt_in ? "pending" : "subscribed",
               status: "subscribed",
               merge_fields: merge_vars,
               email_type: 'html'

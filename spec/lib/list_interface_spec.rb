@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Spree::Chimpy::Interface::List do
-  let(:interface)         { described_class.new('Members', 'customers', true, true, nil) }
+  let(:interface)         { described_class.new('Members', 'customers', false, true, nil) }
   let(:api)               { double(:api) }
   let(:list_id)           { "a3d3" }
   let(:segment_id)        { 3887 }
@@ -46,8 +46,16 @@ describe Spree::Chimpy::Interface::List do
   context "#subscribe" do
     it "subscribes" do
       expect(member_api).to receive(:upsert)
-        .with(hash_including(body: {email_address: email, status: "subscribed", merge_fields: { 'SIZE' => '10' }, email_type: 'html' }))
+        .with(hash_including(body: {email_address: email, status_if_new: "subscribed", status: "subscribed", merge_fields: { 'SIZE' => '10' }, email_type: 'html' }))
       interface.subscribe(email, 'SIZE' => '10')
+    end
+
+    it "request opt-in when double opt-in is enabled" do
+      interface = described_class.new('Members', 'customers', true, true, nil)
+      expect(member_api).to receive(:upsert)
+                                .with(hash_including(body: {email_address: email, status_if_new: "pending", status: "subscribed", merge_fields: { 'SIZE' => '10' }, email_type: 'html' }))
+      interface.subscribe(email, 'SIZE' => '10')
+
     end
 
     it "ignores exception Gibbon::MailChimpError" do
@@ -118,6 +126,7 @@ describe Spree::Chimpy::Interface::List do
       .with(hash_including(
         body: {
           email_address: email,
+          status_if_new: "subscribed",
           status: "subscribed",
           merge_fields: { 'SIZE' => '10' },
           email_type: 'html'

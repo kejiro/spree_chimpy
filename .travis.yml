@@ -12,4 +12,10 @@ addons:
   chrome: stable
 
 rvm:
-  - 2.6.0
+  - 2.5
+  - 2.6
+gemfile:
+  - gemfiles/spree_3_5.gemfile
+  - gemfiles/spree_3_6.gemfile
+  - gemfiles/spree_3_7.gemfile
+  - gemfiles/spree_master.gemfile
