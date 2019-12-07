@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Spree::Chimpy::Interface::OrderUpserter do
-  let(:store_id)  { "super-store" }
+  let(:store_id) { "super-store" }
   let(:store_api) { double(:store_api) }
   let(:order_api) { double(:order_api) }
   let(:orders_api) { double(:orders_api) }
@@ -11,12 +11,12 @@ describe Spree::Chimpy::Interface::OrderUpserter do
     allow(Spree::Chimpy).to receive(:store_api_call) { store_api }
   end
 
-  def create_order(options={})
-    user  = create(:user, email: options[:email])
+  def create_order(options = {})
+    user = create(:user, email: options[:email])
 
     # we need to have a saved order in order to have a non-nil order number
     # we need to stub :notify_mail_chimp otherwise sync will be called on the order on update!
-    allow_any_instance_of(Spree::Order).to receive(:notify_mail_chimp).and_return(true)
+    allow(Spree::Chimpy::OrderDecorator).to receive(:notify_mail_chimp).and_return(true)
     order = create(:completed_order_with_totals, user: user, email: options[:email])
     order.source = Spree::Chimpy::OrderSource.new(email_id: options[:email_id], campaign_id: options[:campaign_id])
     order.save
@@ -47,10 +47,10 @@ describe Spree::Chimpy::Interface::OrderUpserter do
 
     before(:each) do
       allow(store_api).to receive(:orders)
-        .and_return(orders_api)
+                              .and_return(orders_api)
       allow(store_api).to receive(:orders)
-        .with(anything)
-        .and_return(order_api)
+                              .with(anything)
+                              .and_return(order_api)
       allow(Spree::Chimpy::Interface::Products).to receive(:ensure_products)
       allow(Spree::Chimpy::Interface::CustomerUpserter).to receive(:new).with(order) { customer_upserter }
       allow(customer_upserter).to receive(:ensure_customer) { customer_id }
@@ -64,7 +64,7 @@ describe Spree::Chimpy::Interface::OrderUpserter do
 
     it "ensures the customer exists and uses that ID" do
       expect(customer_upserter).to receive(:ensure_customer)
-        .and_return("customer_1")
+                                       .and_return("customer_1")
 
       expect(interface).to receive(:find_and_update_order) do |h|
         expect(h[:customer][:id]).to eq "customer_1"
@@ -75,7 +75,7 @@ describe Spree::Chimpy::Interface::OrderUpserter do
 
     it "does not perform the order upsert if no customer_id exists" do
       expect(customer_upserter).to receive(:ensure_customer)
-        .and_return(nil)
+                                       .and_return(nil)
 
       expect(interface).to_not receive(:perform_upsert)
 
@@ -85,7 +85,7 @@ describe Spree::Chimpy::Interface::OrderUpserter do
     context "when order already exists" do
       before(:each) do
         allow(order_api).to receive(:retrieve)
-          .and_return({ "id" => order.number })
+                                .and_return({"id" => order.number})
       end
 
       it "updates a found order" do
@@ -99,7 +99,7 @@ describe Spree::Chimpy::Interface::OrderUpserter do
     context "when order is not found" do
       before(:each) do
         allow(order_api).to receive(:retrieve)
-          .and_raise(Gibbon::MailChimpError)
+                                .and_raise(Gibbon::MailChimpError)
       end
 
       it "creates order" do

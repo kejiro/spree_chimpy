@@ -14,7 +14,7 @@ describe Spree::Chimpy::Interface::Products do
 
   describe "ensure_products" do
     let(:order) {
-      allow_any_instance_of(Spree::Order).to receive(:notify_mail_chimp).and_return(true)
+      allow(Spree::Chimpy::OrderDecorator).to receive(:notify_mail_chimp).and_return(true)
       create(:completed_order_with_totals)
     }
 
@@ -43,10 +43,10 @@ describe Spree::Chimpy::Interface::Products do
         expect(products_api).to receive(:create) do |h|
           product = variant.product
           expect(h[:body]).to include({
-            id: product.id.to_s,
-            title: product.name,
-            handle: product.slug,
-          })
+                                          id: product.id.to_s,
+                                          title: product.name,
+                                          handle: product.slug,
+                                      })
           expect(h[:body][:url]).to include("/products/#{product.slug}")
           expect(h[:body][:variants].count).to eq 1
           v = h[:body][:variants].first
