@@ -2,12 +2,14 @@ appraise 'spree-3-6' do
   gem 'spree', '~> 3.6.0'
   gem 'spree_auth_devise', '~> 3.3.0'
   gem 'rails-controller-testing'
+  gem 'sprockets', '~> 3.7.2'
 end
 
 appraise 'spree-3-7' do
   gem 'spree', '~> 3.7.0'
   gem 'spree_auth_devise', '~> 3.4'
   gem 'rails-controller-testing'
+  gem 'sprockets', '~> 3.7.2'
 end
 
 appraise 'spree-4-0' do
